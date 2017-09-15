@@ -43,12 +43,13 @@ for i=2+offset:1:length
   if i > next_update
     ierror(i) = t_media_ist(i-offset) - t_media_soll(i-offset);
     perror(i) = ierror(i) - ierror(i-1);
-    t_media_step = t_media_step - ierror(i) * 0.05 - perror(i) * 0.2;
+    t_media_step = t_media_step - ierror(i) * 0.5 - perror(i) * 0.6;
     next_update = i + update_interval;
   endif
 endfor
 ierror(length+1) = 0;
 perror(length+1) = 0;
+t_media_ist(length+1) = t_media_soll(length+1);
    
 # Claculate absolute error
 error = t_media_ist - t_media_soll;
