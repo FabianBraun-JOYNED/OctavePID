@@ -26,12 +26,26 @@ t_media_ist = t_ptp;
 t_media_error = rand(length+1)*5-2.5; 
 #t_media_error = sin(t_ptp*0.5);
 
+ierror = zeros(length+1);
+perror = zeros(length+1);
+  
+update_interval = 10;
+next_update = update_interval;
+
+t_media_step_init = 1.1;
+t_media_step = t_media_step_init;
+
 # Control loop  
 for i=2+offset:1:length
-  t_media_ist(i) = t_media_ist(i) + t_media_step + t_media_error(i) + 10; # Add calculated step, add some error signal, add a constant = timer running to fast
-  ierror(i) = t_media_ist(i-offset) - t_media_soll(i-offset);
-  perror(i) = ierror(i-offset) - ierror(i-offset-1);
-  t_media_step = t_media_step - ierror(i) * 0.05 - perror(i) * 0.2;
+  t_media_ist(i) = t_media_ist(i) + t_media_step + t_media_error(i) + t_media_step_init; # Add calculated step, add some error signal, add a constant = timer running to fast
+  ierror(i) = ierror(i-1);
+  perror(i) = perror(i-1);
+  if i > next_update
+    ierror(i) = t_media_ist(i-offset) - t_media_soll(i-offset);
+    perror(i) = ierror(i) - ierror(i-1);
+    t_media_step = t_media_step - ierror(i) * 0.05 - perror(i) * 0.2;
+    next_update = i + update_interval;
+  endif
 endfor
 ierror(length+1) = 0;
 perror(length+1) = 0;
@@ -39,7 +53,6 @@ perror(length+1) = 0;
 # Claculate absolute error
 error = t_media_ist - t_media_soll;
 
-     
 # Plot the timing values 
 figure(1);
 plot (t_ptp, t_ptp, '-', t_ptp, t_media_soll, '--', t_ptp, t_media_ist, '--');
