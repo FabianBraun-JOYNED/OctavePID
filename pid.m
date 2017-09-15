@@ -28,6 +28,7 @@ t_media_error = rand(length+1)*5-2.5;
 
 ierror = zeros(length+1);
 perror = zeros(length+1);
+derror = zeros(length+1);
   
 update_interval = 10;
 next_update = update_interval;
@@ -40,10 +41,12 @@ for i=2+offset:1:length
   t_media_ist(i) = t_media_ist(i) + t_media_step + t_media_error(i) + t_media_step_init; # Add calculated step, add some error signal, add a constant = timer running to fast
   ierror(i) = ierror(i-1);
   perror(i) = perror(i-1);
+  derror(i) = derror(i-1);
   if i > next_update
     ierror(i) = t_media_ist(i-offset) - t_media_soll(i-offset);
     perror(i) = ierror(i) - ierror(i-1);
-    t_media_step = t_media_step - ierror(i) * 0.5 - perror(i) * 0.6;
+    derror(i) = ierror(i) + ierror(i-1);
+    t_media_step = t_media_step - ierror(i) * 0.5 - perror(i) * 0.6 - derror(i) * 0.3;
     next_update = i + update_interval;
   endif
 endfor
@@ -61,5 +64,5 @@ plot (t_ptp, t_ptp, '-', t_ptp, t_media_soll, '--', t_ptp, t_media_ist, '--');
 
 # Plot the error signals
 figure(2);
-plot ( t_ptp, error, '-', t_ptp, ierror, '--', t_ptp, perror, '-');
+plot ( t_ptp, error, '-', t_ptp, ierror, '--', t_ptp, perror, '-', t_ptp, derror, '-');
 #axis ([0 length+1 -20 20]); #[x_lo x_hi y_lo y_hi]
