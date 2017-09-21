@@ -5,7 +5,7 @@
 
 clear;
 # Number of samples taken for the simulation
-length = 1000; # 1 kHz ticks
+length = 10000; # 1 kHz ticks
 
 # t_ptp is the common time base of two systems
 t_ptp = 0:1:length; # startpoint : increment value for common time base : endpoint
@@ -21,7 +21,7 @@ t_media_step = 1.00005; # run 50 ppm faster than time reference
 t_media_ist = t_ptp;
 
 # t_media_error is added as error signal to t_media_ist
-t_media_error = rand(length+1)*5-2.5; 
+t_media_error = rand(length+1)*0.000001-0.0000005; # 1 kHz ticks
 #t_media_error = sin(t_ptp*0.5);
 
 ierror = zeros(length+1);
@@ -56,7 +56,7 @@ for i=2+offset:1:length
     perror(i) = t_media_ist(i-offset) - t_media_soll(i-offset);
     derror(i) = perror(i) - perror(i-offset);
     ierror(i) = perror(i) + perror(i-offset);
-    t_media_step = t_media_step - perror(i) * 0.1 - perror(i) * 0.6 - derror(i) * 0.3;
+    t_media_step = t_media_step - perror(i) * 0.1 - ierror(i) * 0.6 - derror(i) * 0.3;
     next_update = i + update_interval;
   endif
   
